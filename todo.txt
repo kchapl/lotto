@@ -1,0 +1,8 @@
+1. parse html to get image URL
+1a. notify if cannot parse html
+1b. notify with postcode image
+2. send URL to https://www.newocr.com/
+3. check postcode
+     ifttt: datetime -> maker -> app
+4. notify if winner:
+     ifttt: app -> maker -> email

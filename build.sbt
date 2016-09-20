@@ -1,4 +1,4 @@
-name := "postcode-lottery-checker"
+name := "lotto"
 
 version := "1.0-SNAPSHOT"
 

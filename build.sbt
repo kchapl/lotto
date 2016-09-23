@@ -7,11 +7,6 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
-  jdbc,
-  cache,
   ws,
-  "org.jsoup" % "jsoup" % "1.9.2",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
+  "org.jsoup" % "jsoup" % "1.9.2"
 )
-
-resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"

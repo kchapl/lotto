@@ -6,7 +6,7 @@ import play.api.libs.ws.WSClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object LotteryService {
+object Lottery {
 
   def postcodeImageUrl(ws: WSClient, userId: String): Future[String] = {
     ws.url("http://freepostcodelottery.com/")

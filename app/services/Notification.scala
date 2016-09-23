@@ -9,7 +9,12 @@ object Notification {
 
   def sent(ws: WSClient, key: String, postcode: String): Future[Int] = {
     ws.url(s"https://maker.ifttt.com/trigger/winning_postcode/with/key/$key")
-      .post(Map("value1" -> Seq(postcode))) map {
+      .post(
+        Map(
+          "value1" -> Seq(Lottery.url),
+          "value2" -> Seq(postcode)
+        )
+      ) map {
       _.status
     }
   }

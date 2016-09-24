@@ -16,7 +16,7 @@ class CheckingController @Inject()(ws: WSClient) extends Controller {
   private val ocrApiKey = Properties.envOrElse("OCR_API_KEY", "")
   private val makerKey = Properties.envOrElse("MAKER_KEY", "")
 
-  def warmUp = Action { Ok }
+  def warmUp = Action { NoContent }
 
   def check = Action.async {
     for {

@@ -7,8 +7,8 @@ import scala.concurrent.Future
 
 object Notification {
 
-  def sent(ws: WSClient, key: String, postcode: String): Future[Int] = {
-    ws.url(s"https://maker.ifttt.com/trigger/winning_postcode/with/key/$key")
+  def sent(ws: WSClient, key: String, event: String, postcode: String): Future[Int] = {
+    ws.url(s"https://maker.ifttt.com/trigger/$event/with/key/$key")
       .post(
         Map(
           "value1" -> Seq(Lottery.url),

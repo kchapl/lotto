@@ -15,6 +15,7 @@ class CheckingController @Inject()(ws: WSClient) extends Controller {
   private val lotteryUserId = Properties.envOrElse("LOTTERY_USER_ID", "")
   private val ocrApiKey = Properties.envOrElse("OCR_API_KEY", "")
   private val makerKey = Properties.envOrElse("MAKER_KEY", "")
+  private val expectedPostcode = Properties.envOrElse("POSTCODE", "")
 
   def warmUp = Action { NoContent }
 
@@ -23,7 +24,10 @@ class CheckingController @Inject()(ws: WSClient) extends Controller {
       imageUrl <- Lottery.postcodeImageUrl(ws, lotteryUserId)
       postcode <- Ocr.read(ws, imageUrl, ocrApiKey)
     } yield {
-      Notification.sent(ws, makerKey, postcode)
+      Notification.sent(ws, makerKey, "postcode_update", postcode)
+      if (postcode == expectedPostcode) {
+        Notification.sent(ws, makerKey, "postcode_win", postcode)
+      }
       Ok(Html(s"""<div>$postcode</div><div><img src="$imageUrl"></div>"""))
     }
   }

@@ -1,1 +1,2 @@
-GET / controllers.CheckingController.check()
+GET /       controllers.CheckingController.warmUp()
+GET /check  controllers.CheckingController.check()

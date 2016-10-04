@@ -8,27 +8,38 @@ import play.twirl.api.Html
 import services.{Lottery, Notification, Ocr}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.Properties
 
 class CheckingController @Inject()(ws: WSClient) extends Controller {
 
-  private val lotteryUserId = Properties.envOrElse("LOTTERY_USER_ID", "")
-  private val ocrApiKey = Properties.envOrElse("OCR_API_KEY", "")
-  private val makerKey = Properties.envOrElse("MAKER_KEY", "")
-  private val expectedPostcode = Properties.envOrElse("POSTCODE", "")
+  private val lotteryUserId = Properties.envOrNone("LOTTERY_USER_ID")
+  private val ocrApiKey = Properties.envOrNone("OCR_API_KEY")
+  private val makerKey = Properties.envOrNone("MAKER_KEY")
+  private val expectedPostcode = Properties.envOrNone("POSTCODE")
 
   def warmUp = Action { NoContent }
 
   def check = Action.async {
-    for {
-      imageUrl <- Lottery.postcodeImageUrl(ws, lotteryUserId)
-      postcode <- Ocr.read(ws, imageUrl, ocrApiKey)
-    } yield {
-      Notification.sent(ws, makerKey, "postcode_update", postcode)
-      if (postcode == expectedPostcode) {
-        Notification.sent(ws, makerKey, "postcode_win", postcode)
-      }
-      Ok(Html(s"""<div>$postcode</div><div><img src="$imageUrl"></div>"""))
+    (lotteryUserId, ocrApiKey, makerKey, expectedPostcode) match {
+      case (Some(u), Some(o), Some(m), Some(p)) =>
+        for {
+          imageUrl <- Lottery.postcodeImageUrl(ws, u)
+          postcode <- Ocr.read(ws, imageUrl, o)
+        } yield {
+          Notification.sent(ws, m, "postcode_update", p)
+          if (eq(postcode, p)) {
+            Notification.sent(ws, m, "postcode_win", postcode)
+          }
+          Ok(Html(s"""<div>$postcode</div><div><img src="$imageUrl"></div>"""))
+        }
+      case _ =>
+        Future.successful(InternalServerError("Missing properties"))
     }
+  }
+
+  private def eq(s1: String, s2: String): Boolean = {
+    def stem(s: String) = s.toLowerCase.trim.replaceAll("\\s+", "")
+    stem(s1) == stem(s2)
   }
 }

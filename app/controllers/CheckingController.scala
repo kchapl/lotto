@@ -22,16 +22,16 @@ class CheckingController @Inject()(ws: WSClient) extends Controller {
 
   def check = Action.async {
     (lotteryUserId, ocrApiKey, makerKey, expectedPostcode) match {
-      case (Some(u), Some(o), Some(m), Some(p)) =>
+      case (Some(u), Some(o), Some(m), Some(refPostcode)) =>
         for {
           imageUrl <- Lottery.postcodeImageUrl(ws, u)
-          postcode <- Ocr.read(ws, imageUrl, o)
+          actualPostcode <- Ocr.read(ws, imageUrl, o)
         } yield {
-          Notification.sent(ws, m, "postcode_update", p)
-          if (eq(postcode, p)) {
-            Notification.sent(ws, m, "postcode_win", postcode)
+          Notification.sent(ws, m, "postcode_update", actualPostcode)
+          if (eq(actualPostcode, refPostcode)) {
+            Notification.sent(ws, m, "postcode_win", actualPostcode)
           }
-          Ok(Html(s"""<div>$postcode</div><div><img src="$imageUrl"></div>"""))
+          Ok(Html(s"""<div>$actualPostcode</div><div><img src="$imageUrl"></div>"""))
         }
       case _ =>
         Future.successful(InternalServerError("Missing properties"))

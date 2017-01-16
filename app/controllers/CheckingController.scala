@@ -23,8 +23,9 @@ class CheckingController @Inject()(ws: WSClient) extends Controller {
   def check = Action.async {
     (lotteryUserId, ocrApiKey, makerKey, expectedPostcode) match {
       case (Some(u), Some(o), Some(m), Some(refPostcode)) =>
+        val url = Lottery.postcodeImageUrl(ws, u)
         for {
-          imageUrl <- Lottery.postcodeImageUrl(ws, u)
+          imageUrl <- url
           actualPostcode <- Ocr.read(ws, imageUrl, o)
         } yield {
           Notification.sent(ws, m, "postcode_update", actualPostcode)
@@ -32,6 +33,12 @@ class CheckingController @Inject()(ws: WSClient) extends Controller {
             Notification.sent(ws, m, "postcode_win", actualPostcode)
           }
           Ok(Html(s"""<div>$actualPostcode</div><div><img src="$imageUrl"></div>"""))
+        }
+        for {
+          e <- url.failed
+        } yield {
+          Notification.sent(ws, m, "postcode_failure", e.getMessage)
+          InternalServerError(s"Failed to read postcode image: $e")
         }
       case _ =>
         Future.successful(InternalServerError("Missing properties"))

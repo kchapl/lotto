@@ -1,5 +1,6 @@
 package services
 
+import model.Config.lottery
 import play.api.Logger
 import play.api.libs.ws.WSClient
 
@@ -13,7 +14,7 @@ object Notification {
     ws.url(s"https://maker.ifttt.com/trigger/$event/with/key/$key")
       .post(
         Map(
-          "value1" -> Seq(Lottery.url),
+          "value1" -> Seq(lottery.url),
           "value2" -> Seq(postcode)
         )
       ) map { _.status }

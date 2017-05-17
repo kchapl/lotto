@@ -12,7 +12,7 @@ object Ocr {
       .post(
         Map(
           "apikey" -> Seq(apiKey),
-          "url" -> Seq(imageUrl)
+          "url"    -> Seq(imageUrl)
         )
       ) map { response =>
       ((response.json \ "ParsedResults").head \ "ParsedText").as[String].trim.toUpperCase

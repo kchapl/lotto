@@ -19,5 +19,5 @@ jobs:
         distribution: temurin
         cache: sbt
     - name: Run tests
-      run: sbt test
+      run: sbt clean compile Test/compile test
       
